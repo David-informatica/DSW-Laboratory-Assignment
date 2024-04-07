@@ -5,7 +5,6 @@ const UserSchema = mongoose.Schema({
 
   name: {
     type: String,
-    required: true // Hace que el campo sea obligatorio
   },
   email: {
     type: String,

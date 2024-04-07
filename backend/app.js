@@ -2,12 +2,13 @@ import express from "express"
 //importamos la conexion con la bd y el enrutador
 import db from "./database/db.js"
 import userRoutes from "./routes/user.js"
+import loginRoute from "./routes/authentication.js"
 
 const app = express()
 
 //middleware
 app.use(express.json());
-app.use('/api', userRoutes);
+app.use('/api', userRoutes, loginRoute);
 
 
 //Conexión con la base de datos

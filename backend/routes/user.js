@@ -5,7 +5,6 @@ const router = express.Router()
 
 //CRUD USERS
 //--------------------
-
 //Create users
 router.post('/users', (req, res) => {
     const user = UserSchema(req.body);
@@ -41,5 +40,6 @@ router.delete('/users/:id', (req, res) => {
         .then((data) => res.json(data))
         .catch((error) => res.json({ message: error }));
 })
+
 
 export default router;
