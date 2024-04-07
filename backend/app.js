@@ -1,22 +1,27 @@
-let express = require('express');
-let path = require('path');
-let cookieParser = require('cookie-parser');
-let logger = require('morgan');
-const db = require('./config/db');
+import express from "express"
+//importamos la conexion con la bd y el enrutador
+import db from "./database/db.js"
+import userRoutes from "./routes/user.js"
 
-let indexRouter = require('./routes/index');
-let usersRouter = require('./routes/users');
+const app = express()
 
-let app = express();
-db();
-
-app.use(logger('dev'));
+//middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/api', userRoutes);
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
-module.exports = app;
+//Conexión con la base de datos
+try {
+    db()
+} catch (error) {
+    console.log(`El error de conexión es: ${error}`)
+}
+
+//RUTAS
+app.get('/', (req, res) => {
+    res.send('HOLA MUNDO')
+})
+
+app.listen(3000, () => {
+    console.log('Server UP running in http://localhost:3000/')
+})
