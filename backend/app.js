@@ -1,16 +1,19 @@
 import express from "express"
 import cors from 'cors'
-//importamos la conexion con la bd y el enrutador
+//importamos la conexion con la bd y enrutadores
 import db from "./database/db.js"
 import userRoutes from "./routes/user.js"
 import loginRoute from "./routes/authentication.js"
+import notesRoute from "./routes/notes.js"
+import dotenv from 'dotenv'
 
 const app = express()
 
 //middleware
+dotenv.config();
 app.use(cors())
 app.use(express.json());
-app.use('/api', userRoutes, loginRoute);
+app.use('/api', userRoutes, loginRoute, notesRoute);
 
 
 //Conexión con la base de datos
