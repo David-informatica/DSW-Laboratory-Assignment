@@ -6,13 +6,16 @@ const router = express.Router()
 //CRUD NOTES
 //--------------------
 //Create Note
-router.post('/CreateNotes', (req, res) => {
-    const note = NotesSchema(req.body);
-    note
-        .save()
-        .then((data) => res.json(data))
-        .catch((error) => res.json({ message: error }));
-})
+router.post('/Notes', async (req, res) => {
+    try {
+        const note = new NotesSchema(req.body);
+        const savedNote = await note.save();
+        res.status(201).json(savedNote);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 //Get Notes
 router.get('/Notes', (req, res) => {
@@ -32,14 +35,15 @@ router.put('/note/:id', (req, res) => {
         .catch((error) => res.json({ message: error }));
 })
 
-//Delete user
+//Delete note
 router.delete('/note/:id', (req, res) => {
     const { id } = req.params;
     NotesSchema
-        .remove({ _id: id })
+        .deleteOne({ _id: id })
         .then((data) => res.json(data))
-        .catch((error) => res.json({ message: error }));
-})
+        .catch((error) => res.json({ message: error.message }));
+});
+
 
 
 export default router;
