@@ -1,14 +1,30 @@
-import express from 'express'
-import NotesSchema from '../models/Notes.js'
+import express from 'express';
+import NotesSchema from '../models/Notes.js';
+import jwt from 'jsonwebtoken';
 
-const router = express.Router()
+const router = express.Router();
 
-//CRUD NOTES
-//--------------------
-//Create Note
-router.post('/Notes', async (req, res) => {
+// Middleware para verificar el token y extraer el usuario
+const authenticateToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    if (token == null) return res.sendStatus(401);
+  
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) return res.sendStatus(403);
+      req.user = user;
+      next();
+    });
+};
+
+// Crear una nueva nota asociada al usuario autenticado
+router.post('/Notes', authenticateToken, async (req, res) => {
+    const { name, text, image } = req.body;
     try {
-        const note = new NotesSchema(req.body);
+        const note = new NotesSchema({
+            name, text, image,
+            user: req.user.userId // Asignar el usuario extraído del token
+        });
         const savedNote = await note.save();
         res.status(201).json(savedNote);
     } catch (error) {
@@ -16,34 +32,41 @@ router.post('/Notes', async (req, res) => {
     }
 });
 
-
-//Get Notes
-router.get('/Notes', (req, res) => {
+// Obtener todas las notas del usuario autenticado
+router.get('/Notes', authenticateToken, (req, res) => {
     NotesSchema
-        .find()
+        .find({ user: req.user.userId })
         .then((data) => res.json(data))
         .catch((error) => res.json({ message: error }));
-})
+});
 
-//Update Notes
-router.put('/note/:id', (req, res) => {
+// Actualizar una nota específica del usuario autenticado
+router.put('/note/:id', authenticateToken, (req, res) => {
     const { id } = req.params;
     const { name, text, image } = req.body;
     NotesSchema
-        .updateOne({ _id: id }, { $set: { name, text, image } })
-        .then((data) => res.json(data))
-        .catch((error) => res.json({ message: error }));
-})
-
-//Delete note
-router.delete('/note/:id', (req, res) => {
-    const { id } = req.params;
-    NotesSchema
-        .deleteOne({ _id: id })
-        .then((data) => res.json(data))
-        .catch((error) => res.json({ message: error.message }));
+        .findOneAndUpdate({_id: id, user: req.user.userId}, { $set: { name, text, image } }, { new: true })
+        .then((updatedNote) => {
+            if (!updatedNote) {
+                return res.status(404).json({ message: "Note not found or user unauthorized" });
+            }
+            res.json(updatedNote);
+        })
+        .catch((error) => res.status(500).json({ message: error }));
 });
 
-
+// Eliminar una nota específica del usuario autenticado
+router.delete('/note/:id', authenticateToken, (req, res) => {
+    const { id } = req.params;
+    NotesSchema
+        .findOneAndDelete({_id: id, user: req.user.userId})
+        .then((deletedNote) => {
+            if (!deletedNote) {
+                return res.status(404).json({ message: "Note not found or user unauthorized" });
+            }
+            res.json({ message: "Note deleted" });
+        })
+        .catch((error) => res.status(500).json({ message: error }));
+});
 
 export default router;

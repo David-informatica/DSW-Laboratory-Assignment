@@ -5,6 +5,7 @@ import db from "./database/db.js"
 import userRoutes from "./routes/user.js"
 import loginRoute from "./routes/authentication.js"
 import notesRoute from "./routes/notes.js"
+import collectionRoute from "./routes/collections.js"
 import dotenv from 'dotenv'
 
 const app = express()
@@ -13,7 +14,7 @@ const app = express()
 dotenv.config();
 app.use(cors())
 app.use(express.json());
-app.use('/api', userRoutes, loginRoute, notesRoute);
+app.use('/api', userRoutes, loginRoute, notesRoute, collectionRoute);
 
 
 //Conexión con la base de datos
