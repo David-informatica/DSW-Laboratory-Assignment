@@ -1,11 +1,9 @@
 import mongoose from "mongoose";
 
-// Esquema para el modelo User
 const NotesSchema = mongoose.Schema({
-
   name: {
     type: String,
-    requiered: true,
+    required: true,
     unique: true
   },
   text: {
@@ -13,9 +11,13 @@ const NotesSchema = mongoose.Schema({
   },
   image: {
     type: String
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId, // Tipo ObjectId para referencias
+    ref: 'User', // Referencia al modelo User
+    required: true
   }
 }); 
 
-// Creación del modelo User basado en el esquema y exportacion
 const note = mongoose.model('Notes', NotesSchema);
-export default note
+export default note;
