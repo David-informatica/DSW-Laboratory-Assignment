@@ -14,7 +14,13 @@ const UserSchema = mongoose.Schema({
   password: {
     type: String,
     required: true
+  },
+  
+  isAdmin: {
+    type: Boolean,
+    default: false
   }
+
 }); 
 
 // Creación del modelo User basado en el esquema y exportacion

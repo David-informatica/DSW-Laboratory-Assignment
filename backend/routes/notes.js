@@ -2,6 +2,7 @@ import express from 'express';
 import NotesSchema from '../models/Notes.js';
 import jwt from 'jsonwebtoken';
 
+
 const router = express.Router();
 
 // Middleware para verificar el token y extraer el usuario
@@ -16,6 +17,8 @@ const authenticateToken = (req, res, next) => {
       next();
     });
 };
+
+
 
 // Crear una nueva nota asociada al usuario autenticado
 router.post('/Notes', authenticateToken, async (req, res) => {
