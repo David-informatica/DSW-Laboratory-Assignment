@@ -42,10 +42,32 @@ router.post('/login', async (req, res) => {
 
 // Register User
 router.post('/register', async (req, res) => {
-  const newUser = new UserSchema(req.body);
+  const { name, email, password, isAdmin } = req.body;
+
+  // Validación básica
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Please enter all fields' });
+  }
+
   try {
+    // Verificar si el usuario ya existe
+    const existingUser = await UserSchema.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists' });
+    }
+
+    // Crear un nuevo usuario sin encriptar la contraseña
+    const newUser = new UserSchema({
+      name,
+      email,
+      password, // Almacenar la contraseña tal como se recibe (no seguro)
+      isAdmin: isAdmin || false  // Asegura que isAdmin sea false por defecto si no se proporciona
+    });
+
+    // Guardar el usuario
     const savedUser = await newUser.save();
     res.status(201).json({ message: 'User registered', user: { name: savedUser.name, email: savedUser.email }});
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Error registering user' });
@@ -60,7 +82,7 @@ router.get('/userdata', (req, res) => {
     UserSchema.findById(decoded.userId)
       .then(user => {
         if (user) {
-          res.json({ user: { name: user.name, email: user.email } });
+          res.json({ user: { name: user.name, email: user.email, isAdmin: user.isAdmin } });
         } else {
           res.status(404).json({ message: "User not found" });
         }
